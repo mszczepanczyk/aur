@@ -1,0 +1,39 @@
+# Maintainer: Florian Pritz <flo@xinu.at>
+# Contributor:  TDY <tdy@gmx.com>
+# Contributor: Michael S. Walker <barrucadu@localhost>
+# Based on ack 2.12-1 from abs.
+
+pkgname=ack2-git
+pkgver=2.13_06.r8.g5966019
+pkgrel=1
+pkgdesc="A Perl-based grep replacement, aimed at programmers with large trees of heterogeneous source code"
+arch=('any')
+url="http://betterthangrep.com/"
+license=('GPL' 'PerlArtistic')
+depends=('perl-file-next')
+options=('!emptydirs')
+provides=('ack')
+source=('ack2-git::git://github.com/petdance/ack2.git' 'ignore-dir-match.patch.diff')
+md5sums=('SKIP' '0f36efede294e2e1583c47fa70d0ee12')
+
+pkgver() {
+  cd "$srcdir/$pkgname"
+  git describe --long --tags | sed -r 's/([^-]*-g)/r\1/;s/-/./g'
+}
+
+build() {
+  patch $srcdir/$pkgname/ack < ignore-dir-match.patch.diff
+  cd "$srcdir/$pkgname"
+  PERL_MM_USE_DEFAULT=1 perl Makefile.PL INSTALLDIRS=vendor
+  make
+}
+
+check() {
+  cd "$srcdir/$pkgname"
+  make test
+}
+
+package() {
+  cd "$srcdir/$pkgname"
+  make DESTDIR="$pkgdir" install
+}
