@@ -18,9 +18,15 @@ pkgver() {
   git describe --long | sed -r 's/([^-]*-g)/r\1/;s/-/./g'
 }
 
+build() {
+  cd "$srcdir/csvkit"
+  # Quick and dirty fix until the author officially supports dateutil>=2.2
+  # (see https://github.com/onyxfish/csvkit/issues/370)
+  sed -i 's/python-dateutil==2.2/python-dateutil>=2.2/' setup.py
+}
+
 package() {
   cd "$srcdir/csvkit"
   python setup.py install --root="$pkgdir/"
 }
-
 
